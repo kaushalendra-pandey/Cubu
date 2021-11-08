@@ -8,6 +8,7 @@ import { useState } from 'react';
 import PlacesAutocomplete from 'react-places-autocomplete';
 import { Logout } from '../graphql/mutations/logout.graphql';
 import { Me } from '../graphql/queries/me.graphql';
+import {LocationMarkerIcon} from '@heroicons/react/solid'
 
 function Header({ placeholder }) {
   const [address, setAddress] = useState('');

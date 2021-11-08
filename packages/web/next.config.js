@@ -9,7 +9,7 @@ module.exports = {
     return config;
   },
   images: {
-    domains: ['www.sushanttravels.com', 'www.tarasportrafting.com']
+    domains: ['www.sushanttravels.com', 'www.tarasportrafting.com', 'localhost', 'http://dummyimage.com']
   },
   env: {
     mapbox_key: 'pk.eyJ1IjoicGljb3p6aW1pY2hlbGUiLCJhIjoiY2t0YjZtZmpuMXQ0dDJ2bjloM3ZxM2R2dyJ9.vpLuQlobE_kubcyl02VIdg'

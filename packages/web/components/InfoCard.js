@@ -1,8 +1,8 @@
 import Image from "next/image"
 import { HeartIcon } from "@heroicons/react/outline";
-import { StarIcon } from "@heroicons/react/solid";
 
 function InfoCard({ make, model, description, year, price, pictureUrl }) {
+    console.log(pictureUrl)
     return (
         <div className="flex py-7 px-2 pr-4 border-b cursor-pointer hover:opacity-80 hover:shadow-lg treansition duration-200 ease-out first: border-t">
             {pictureUrl != null && <div className="relative h-24 w-40 md:h-52 md:w-80 flex-shrink-0">
