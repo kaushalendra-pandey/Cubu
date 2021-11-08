@@ -1,0 +1,17 @@
+type Listing {
+  id: ID!
+  make: String!
+  model: String!
+  year: Int!
+  pictureUrl: String
+  description: String!
+  price: Int!
+  latitude: Float!
+  longitude: Float!
+  features: [String!]!
+  owner: User!
+}
+
+type Query {
+  findListings: [Listing!]!
+}

@@ -1,0 +1,49 @@
+{
+  "private": "true",
+  "name": "cubu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "linters/*"
+    ]
+  },
+  "devDependencies": {
+    "@cubu/eslint-config": "1.0.0",
+    "@cubu/prettier-config": "1.0.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "3.3.0",
+    "devmoji": "^2.3.0",
+    "husky": "^7.0.0",
+    "lerna": "^4.0.0"
+  },
+  "scripts": {
+    "lerna": "lerna",
+    "clean": "lerna clean",
+    "test": "lerna run test",
+    "web:dev": "lerna run --parallel --scope @cubu/web dev",
+    "server:test": "lerna run --parallel --scope @cubu/server test",
+    "server:watch": "lerna run --parallel --scope @cubu/server watch",
+    "server": "lerna run --parallel --scope @cubu/server start",
+    "prepare": "husky install"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@cubu/eslint-config"
+    ]
+  },
+  "eslintIgnore": [
+    "*.d.ts"
+  ],
+  "prettier": "@cubu/prettier-config",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

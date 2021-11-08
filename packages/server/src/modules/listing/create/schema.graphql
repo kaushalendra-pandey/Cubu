@@ -1,0 +1,17 @@
+scalar Upload
+
+input CreateListingInput {
+  make: String!
+  model: String!
+  year: Int!
+  picture: Upload
+  description: String!
+  price: Int!
+  latitude: Float!
+  longitude: Float!
+  features: [String!]!
+}
+
+type Mutation {
+  createListing(input: CreateListingInput!): Boolean!
+}

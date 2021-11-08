@@ -1,0 +1,12 @@
+type Query {
+  searchListings(
+    year: Int
+    price: Int
+    model: String
+    make: String
+    latitude: Float
+    longitude: Float
+    offset: Int!
+    limit: Int!
+  ): [Listing!]!
+}

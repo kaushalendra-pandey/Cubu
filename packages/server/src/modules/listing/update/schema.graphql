@@ -1,0 +1,17 @@
+input UpdateListingInput {
+  name: String
+  make: String
+  model: String
+  year: Int
+  category: String
+  picture: Upload
+  description: String
+  price: Int
+  latitude: Float
+  longitude: Float
+  features: [String!]
+}
+
+type Mutation {
+  updateListing(listingId: String!, input: UpdateListingInput!): Boolean!
+}
