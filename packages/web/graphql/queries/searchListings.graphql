@@ -1,0 +1,28 @@
+query searchListings(
+    $latitude: Float
+    $longitude: Float
+    $offset: Int!
+    $limit: Int!
+  ) {
+    searchListings(
+      latitude: $latitude
+      longitude: $longitude
+      offset: $offset
+      limit: $limit
+    ) {
+      id
+      make
+      model
+      year
+      pictureUrl
+      price
+      latitude
+      longitude
+      description
+      features
+      owner {
+        id
+        email
+      }
+    }
+  }

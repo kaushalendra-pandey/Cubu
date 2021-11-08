@@ -1,20 +1,20 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { GlobeAltIcon, MenuIcon, SearchIcon, UserCircleIcon, UsersIcon } from '@heroicons/react/solid';
+import { GlobeAltIcon, MenuIcon, SearchIcon, UserCircleIcon } from '@heroicons/react/solid';
 import { useMediaQuery } from '@react-hook/media-query';
 import { useRouter } from 'next/dist/client/router';
+import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
-import { DateRange, DateRangePicker } from 'react-date-range';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
+import PlacesAutocomplete from 'react-places-autocomplete';
 import { Logout } from '../graphql/mutations/logout.graphql';
 import { Me } from '../graphql/queries/me.graphql';
 
 function Header({ placeholder }) {
-  const [searchInput, setSearchInput] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date()); //need to fix to tomorrow's date
-  const [numberOfGuests, setNumberOfGuests] = useState(1);
+  const [address, setAddress] = useState('');
+  const [coordinates, setCoordinates] = useState({
+    lat: null,
+    lng: null
+  });
   const [showloginOptions, setshowloginOptions] = useState(false);
   const router = useRouter();
   const [logout] = useMutation(Logout);
@@ -26,13 +26,11 @@ function Header({ placeholder }) {
     router.reload();
   };
 
-  const handleSelect = ranges => {
-    setStartDate(ranges.selection.startDate);
-    setEndDate(ranges.selection.endDate);
-  };
-
-  const resetInput = () => {
-    setSearchInput('');
+  const handleSelect = async value => {
+    const results = await geocodeByAddress(value);
+    const latLng = await getLatLng(results[0]);
+    setAddress(value);
+    setCoordinates(latLng);
   };
 
   const toggleLoginOptions = () => {
@@ -43,19 +41,10 @@ function Header({ placeholder }) {
     router.push({
       pathname: '/search',
       query: {
-        location: searchInput,
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-        numberOfGuests
+        lat: coordinates.lat,
+        lng: coordinates.lng
       }
     });
-  };
-
-  const selectionRange = {
-    startDate: startDate,
-    endDate: endDate,
-    key: 'selection',
-    minDate: new Date()
   };
 
   if (data?.me) {
@@ -91,70 +80,62 @@ function Header({ placeholder }) {
   const isSmallScreen = useMediaQuery('(max-width: 36rem)');
 
   return (
-    <header className="sticky top-0 z-50 grid grid-cols-3 bg-white shadow-md py-2 px-5 md:px-10">
-      {/* Left */}
-      <div onClick={() => router.push('/')} className="relative flex items-center h-10 cursor-pointer my-auto -ml-10">
-        <Image src={require('../assets/adaptive-icon.png')} width={200} height={200} />
-      </div>
-
-      {/* Middle */}
-      <div className="flex items-center md:border-2 rounded-full py-2 md:shadow-sm">
-        <input
-          value={searchInput}
-          onChange={event => setSearchInput(event.target.value)}
-          className="flex-grow pl-5 bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400"
-          type="text"
-          placeholder={placeholder || 'Start your search'}
-        />
-        <SearchIcon
-          className="hidden md:inline-flex h-8 bg-indigo-500 text-white rounded-full p-2 cursor-pointer md:mx-2"
-          onClick={search}
-        />
-      </div>
-
-      {/* Right */}
-      <div className="flex items-center space-x-4 justify-end text-gray-500">
-        <p className="hidden md:inline cursor-pointer">Host your car</p>
-        <GlobeAltIcon className="h-6" />
-        <div>
-          <button onClick={toggleLoginOptions} className="flex items-center space-x-2 border-2 p-2 rounded-full">
-            <MenuIcon className="h-6" />
-            <UserCircleIcon className="h-6" />
-          </button>
-          {showloginOptions && body}
+    <div>
+      <Head>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6Q90sn5X-YQ6yZo5WlSSDuD8xfMMazuE&libraries=places"></script>
+      </Head>
+      <header className="sticky top-0 z-50 grid grid-cols-3 bg-white shadow-md py-2 px-5 md:px-10">
+        {/* Left */}
+        <div onClick={() => router.push('/')} className="relative flex items-center h-10 cursor-pointer my-auto -ml-10">
+          <Image src={require('../assets/adaptive-icon.png')} width={200} height={200} />
         </div>
-      </div>
 
-      {/* Date picker range */}
-      {searchInput && (
-        <div className="flex flex-col col-span-3 mx-auto mt-5">
-          {isSmallScreen ? (
-            <DateRange ranges={[selectionRange]} minDate={new Date()} rangeColors={['#FD5B61']} onChange={handleSelect} />
-          ) : (
-            <DateRangePicker ranges={[selectionRange]} minDate={new Date()} rangeColors={['#FD5B61']} onChange={handleSelect} />
-          )}
-          <div className="flex items-center border-b mb-4">
-            <h2 className="text-2xl flex-grow font-semibold">Number of Guests</h2>
-            <UsersIcon className="h-5" />
-            <input
-              value={numberOfGuests}
-              onChange={event => setNumberOfGuests(event.target.value)}
-              className="w-12 pl-2 text-lg outline-none text-indigo-500"
-              type="number"
-              min={1}
-            />
-          </div>
-          <div className="flex">
-            <button onClick={resetInput} className="flex-grow text-gray-500">
-              Cancel
+        {/* Middle */}
+        <div className="flex items-center md:border-2 rounded-full py-2 md:shadow-sm">
+          <PlacesAutocomplete value={address} onChange={setAddress} onSelect={handleSelect}>
+            {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+              <div className="w-full">
+                <input
+                  {...getInputProps({ placeholder: 'Type address' })}
+                  className="flex-grow pl-5 pr-100 w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400"
+                />
+                <div className="absolute mt-5">
+                  {loading ? <div>...loading</div> : null}
+                  {suggestions.map(suggestion => {
+                    const style = {
+                      backgroundColor: suggestion.active ? '#5465FF' : '#fff'
+                    };
+
+                    return (
+                      <button {...getSuggestionItemProps(suggestion, { style })} onClick={search}>
+                        <div>
+                          <LocationMarkerIcon size={30} color={'#5465FF'} />
+                        </div>
+                        <p>{suggestion.description}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </PlacesAutocomplete>
+          <SearchIcon className="hidden md:inline-flex h-8 bg-indigo-500 text-white rounded-full p-2 cursor-pointer md:mx-2" />
+        </div>
+
+        {/* Right */}
+        <div className="flex items-center space-x-4 justify-end text-gray-500">
+          <p className="hidden md:inline cursor-pointer">Host your car</p>
+          <GlobeAltIcon className="h-6" />
+          <div>
+            <button onClick={toggleLoginOptions} className="flex items-center space-x-2 border-2 p-2 rounded-full">
+              <MenuIcon className="h-6" />
+              <UserCircleIcon className="h-6" />
             </button>
-            <button onClick={search} className="flex-grow text-indigo-500">
-              Search
-            </button>
+            {showloginOptions && body}
           </div>
         </div>
-      )}
-    </header>
+      </header>
+    </div>
   );
 }
 

@@ -3,17 +3,16 @@ import { useState } from "react";
 import { getCenter } from 'geolib';
 import { LocationMarkerIcon } from '@heroicons/react/outline'
 
-function Map({ searchResults }) {
+function Map({ listings }) {
 
-// for the pop-up marker, passing the object
+console.log(listings)
 const [selectedLocation, setSelectedLocation] = useState({})
-
-// Transform the search result into latitude and longitude for geolib
-// { latitude: 52.516172, longitude: 13.124567}
-const coordinates = searchResults.map(result => ({
-    longitude: result.long,
-    latitude: result.lat
+const coordinates = listings?.map(result => ({
+    latitude: result.latitude,
+    longitude: result.longitude
 }))
+
+console.log(coordinates)
 
 // Center of the searched results using geoLib
 const center = getCenter(coordinates)
@@ -28,16 +27,16 @@ const [viewport, setViewport] = useState({
 
     return (
         <ReactMapGL
-            mapStyle="mapbox://styles/picozzimichele/cktb8m68o61g917ofy0jx1q8j"
+            mapStyle="mapbox://styles/mapbox/light-v10"
             mapboxApiAccessToken={process.env.mapbox_key}
             {...viewport}
             onViewportChange={(nextViewport) => setViewport(nextViewport)}
         >
-            {searchResults.map(result => (
+            {listings?.map(result => (
                 <div key={result.long}>
                     <Marker
-                        longitude={result.long}
-                        latitude={result.lat}
+                        longitude={latitude}
+                        latitude={longitude}
                         offsetLeft={0}
                         offsetTop={0}
                     >
